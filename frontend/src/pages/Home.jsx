@@ -1,21 +1,34 @@
-import { useEffect, useState } from 'react';
-import { getHealth } from "../api/apiClient";
+import React, { useEffect, useState } from 'react';
+import { getIndex } from '../api/apiClient';
+import { Link } from 'react-router-dom';
 
 const Home = () => {
-  const [status, setStatus] = useState('Verificando...');
-  const apiUrl = import.meta.env.VITE_API_URL;
+  const [data, setData] = useState(null);
 
   useEffect(() => {
-    getHealth()
-      .then(() => setStatus('API conectada ✅'))
-      .catch(() => setStatus('Erro ao conectar API ❌'));
+    getIndex().then(setData).catch(console.error);
   }, []);
 
+  if (!data) return <p>Carregando periódico...</p>;
+
   return (
-    <div style={{ fontFamily: 'sans-serif', padding: '40px' }}>
-      <h1>Afro Letrando</h1>
-      <p>Status do sistema: <strong>{status}</strong></p>
-      <small>Conectado em: {apiUrl}</small>
+    <div>
+      <h1>Destaques Recentes</h1>
+      <div className="grid">
+        {data.recentProjects.map(p => (
+          <div key={p.id} className="card">
+            <h3>{p.title}</h3>
+            <p>{p.excerpt}</p>
+            <Link to={`/projetos/${p.slug}`}>Leia mais</Link>
+          </div>
+        ))}
+      </div>
+      <aside>
+        <h2>Tags Populares</h2>
+        {data.topTags.map(t => (
+          <Link key={t.id} to={`/projetos?tag=${t.slug}`}>{t.name} ({t._count.projects})</Link>
+        ))}
+      </aside>
     </div>
   );
 };
