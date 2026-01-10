@@ -1,0 +1,102 @@
+<?php
+session_start();
+require_once 'conexao.php';
+
+$erro = '';
+
+// Se o usuário já estiver logado, joga ele direto para o painel
+if (isset($_SESSION['usuario_id'])) {
+    header("Location: admin.php");
+    exit;
+}
+
+// Processa o envio do formulário
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    $email = $conn->real_escape_string($_POST['email']);
+    $senha = $_POST['senha'];
+
+    // Busca o usuário pelo email
+    $sql = "SELECT id, nome, senha, nivel FROM usuarios WHERE email = '$email' AND status = 1";
+    $result = $conn->query($sql);
+
+    if ($result->num_rows == 1) {
+        $usuario = $result->fetch_assoc();
+        
+        // Verifica se a senha bate com o hash no banco
+        if (password_verify($senha, $usuario['senha'])) {
+            // Sucesso: Salva dados na sessão
+            $_SESSION['usuario_id'] = $usuario['id'];
+            $_SESSION['usuario_nome'] = $usuario['nome'];
+            $_SESSION['usuario_nivel'] = $usuario['nivel'];
+            
+            header("Location: admin.php");
+            exit;
+        } else {
+            $erro = "Senha incorreta.";
+        }
+    } else {
+        $erro = "Usuário não encontrado ou inativo.";
+    }
+}
+?>
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Administrativo | Afroletrando</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@300;400;600&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        h1 { font-family: 'Playfair Display', serif; }
+    </style>
+</head>
+<body class="bg-stone-100 h-screen flex items-center justify-center px-4">
+
+    <div class="max-w-md w-full bg-white rounded-xl shadow-2xl overflow-hidden border border-stone-200">
+        <div class="bg-stone-900 p-8 text-center relative overflow-hidden">
+            <div class="absolute inset-0 bg-orange-900/20"></div>
+            <h1 class="text-3xl text-white relative z-10">Afroletrando</h1>
+            <p class="text-stone-400 text-sm mt-2 relative z-10 uppercase tracking-widest">Acesso Restrito</p>
+        </div>
+
+        <div class="p-8">
+            <?php if ($erro): ?>
+                <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6 text-sm" role="alert">
+                    <p class="font-bold">Atenção</p>
+                    <p><?php echo $erro; ?></p>
+                </div>
+            <?php endif; ?>
+
+            <form method="POST" action="">
+                <div class="mb-6">
+                    <label class="block text-stone-600 text-sm font-bold mb-2" for="email">E-mail</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-stone-400">
+                            <i class="fas fa-envelope"></i>
+                        </span>
+                        <input class="w-full pl-10 pr-3 py-3 rounded-lg border border-stone-300 focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition" 
+                               id="email" type="email" name="email" placeholder="seu@email.com" required>
+                    </div>
+                </div>
+
+                <div class="mb-8">
+                    <label class="block text-stone-600 text-sm font-bold mb-2" for="senha">Senha</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-stone-400">
+                            <i class="fas fa-lock"></i>
+                        </span>
+                        <input class="w-full pl-10 pr-3 py-3 rounded-lg border border-stone-300 focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition" 
+                               id="senha" type="password" name="senha" placeholder="••••••••" required>
+                    </div>
+                </div>
+
+                <button class="w-full bg-orange-700 hover:bg-orange-800 text-white font-bold py-3 px-4 rounded-lg shadow-lg transition duration-300 transform hover:-translate-y-0.5" type="submit">
+                    ENTRAR NO SISTEMA
+                </button>
+            </form>
+            
+            <div class="mt-6 text-center">
+                <a href="index.php" class="text-stone-400 text-sm hover:text-orange-700
