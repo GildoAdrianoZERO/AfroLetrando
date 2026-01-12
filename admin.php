@@ -34,9 +34,18 @@ $result = $conn->query($sql);
                 <div class="flex items-center">
                     <span class="font-bold text-xl tracking-wider">AFROLETRANDO <span class="text-orange-500 text-xs">ADMIN</span></span>
                 </div>
+                
                 <div class="flex items-center space-x-4">
-                    <span class="text-stone-400 text-sm">Olá, <?php echo $_SESSION['usuario_nome']; ?></span>
-                    <a href="logout.php" class="text-white hover:text-red-400 transition text-sm font-bold">
+                    
+                    <?php if (isset($_SESSION['usuario_nivel']) && $_SESSION['usuario_nivel'] == 'admin'): ?>
+                        <a href="admin_usuarios.php" class="bg-stone-800 hover:bg-stone-700 border border-stone-700 text-orange-500 hover:text-orange-400 px-3 py-1 rounded-full transition text-sm font-bold mr-4 flex items-center" title="Gerenciar Equipe">
+                            <i class="fas fa-users-cog mr-2"></i> Gestão de Equipe
+                        </a>
+                    <?php endif; ?>
+
+                    <span class="text-stone-400 text-sm border-l border-stone-700 pl-4">Olá, <?php echo $_SESSION['usuario_nome']; ?></span>
+                    
+                    <a href="logout.php" class="text-white hover:text-red-400 transition text-sm font-bold ml-4" title="Sair do sistema">
                         <i class="fas fa-sign-out-alt mr-1"></i> SAIR
                     </a>
                 </div>
@@ -51,9 +60,25 @@ $result = $conn->query($sql);
                 <h1 class="text-3xl font-bold text-stone-800">Gerenciar Edições</h1>
                 <p class="text-stone-500 mt-1">Lista de todas as revistas publicadas no portal.</p>
             </div>
-            <a href="nova_edicao.php" class="mt-4 md:mt-0 bg-orange-700 hover:bg-orange-800 text-white px-6 py-3 rounded-lg font-bold shadow-lg transition flex items-center">
-                <i class="fas fa-plus-circle mr-2"></i> NOVA EDIÇÃO
-            </a>
+    
+            <div class="flex mt-4 md:mt-0 space-x-3">
+                <a href="editar_sobre.php" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-bold shadow-lg transition flex items-center">
+                    <i class="fas fa-info-circle mr-2"></i> EDITAR SOBRE
+                </a>
+                
+                <a href="admin_equipe.php" class="bg-teal-600 hover:bg-teal-700 text-white px-6 py-3 rounded-lg font-bold shadow-lg transition flex items-center">
+                    <i class="fas fa-users mr-2"></i> EQUIPE
+                </a>
+
+                <a href="logs.php" class="bg-stone-600 hover:bg-stone-700 text-white px-6 py-3 rounded-lg font-bold shadow-lg transition flex items-center">
+                    <i class="fas fa-history mr-2"></i> LOGS
+                </a>
+
+                <a href="nova_edicao.php" class="bg-orange-700 hover:bg-orange-800 text-white px-6 py-3 rounded-lg font-bold shadow-lg transition flex items-center">
+                    <i class="fas fa-plus-circle mr-2"></i> NOVA EDIÇÃO
+                </a>
+
+            </div>
         </div>
 
         <?php if (isset($_GET['msg'])): ?>

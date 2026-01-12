@@ -15,27 +15,34 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $email = $conn->real_escape_string($_POST['email']);
     $senha = $_POST['senha'];
 
-    // Busca o usuário pelo email
-    $sql = "SELECT id, nome, senha, nivel FROM usuarios WHERE email = '$email' AND status = 1";
+    // Busca o usuário pelo email (Removemos o 'AND status = 1' daqui para poder dar a mensagem específica depois)
+    $sql = "SELECT id, nome, senha, nivel, status FROM usuarios WHERE email = '$email'";
     $result = $conn->query($sql);
 
     if ($result->num_rows == 1) {
         $usuario = $result->fetch_assoc();
         
-        // Verifica se a senha bate com o hash no banco
+        // 1. Verifica a Senha
         if (password_verify($senha, $usuario['senha'])) {
-            // Sucesso: Salva dados na sessão
-            $_SESSION['usuario_id'] = $usuario['id'];
-            $_SESSION['usuario_nome'] = $usuario['nome'];
-            $_SESSION['usuario_nivel'] = $usuario['nivel'];
             
-            header("Location: admin.php");
-            exit;
+            // 2. Verifica o Status (Aprovação)
+            if ($usuario['status'] == 0) {
+                $erro = "Sua conta aguarda aprovação do administrador.";
+            } else {
+                // SUCESSO: Salva dados na sessão
+                $_SESSION['usuario_id'] = $usuario['id'];
+                $_SESSION['usuario_nome'] = $usuario['nome'];
+                $_SESSION['usuario_nivel'] = $usuario['nivel'];
+                
+                header("Location: admin.php");
+                exit;
+            }
+
         } else {
             $erro = "Senha incorreta.";
         }
     } else {
-        $erro = "Usuário não encontrado ou inativo.";
+        $erro = "E-mail não encontrado.";
     }
 }
 ?>
@@ -64,9 +71,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
         <div class="p-8">
             <?php if ($erro): ?>
-                <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6 text-sm" role="alert">
-                    <p class="font-bold">Atenção</p>
-                    <p><?php echo $erro; ?></p>
+                <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6 text-sm flex items-start" role="alert">
+                    <i class="fas fa-exclamation-circle mt-1 mr-2"></i>
+                    <div>
+                        <p class="font-bold">Atenção</p>
+                        <p><?php echo $erro; ?></p>
+                    </div>
                 </div>
             <?php endif; ?>
 
@@ -98,5 +108,18 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 </button>
             </form>
             
-            <div class="mt-6 text-center">
-                <a href="index.php" class="text-stone-400 text-sm hover:text-orange-700
+            <div class="mt-6 text-center border-t border-stone-100 pt-6">
+                <p class="text-stone-500 text-sm mb-2">Não tem acesso?</p>
+                <a href="cadastro.php" class="text-orange-700 font-bold hover:underline text-sm block mb-4">
+                    Solicitar conta de Editor
+                </a>
+                
+                <a href="index.php" class="text-stone-400 text-sm hover:text-orange-700 flex items-center justify-center transition">
+                    <i class="fas fa-arrow-left mr-2"></i> Voltar ao Site
+                </a>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

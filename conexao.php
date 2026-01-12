@@ -7,7 +7,7 @@ $senha   = '';
 $banco   = 'afroletrando';
 
 // Porta do Xampp
-$porta   = 3307; 
+$porta   = 3306; 
 
 // Desativa mensagens de erro do MySQLi
 mysqli_report(MYSQLI_REPORT_OFF);

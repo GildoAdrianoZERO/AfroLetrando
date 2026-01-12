@@ -1,49 +1,81 @@
-    <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Revista Afroletrando | Excelência Científica</title>
+    <title>Afroletrando | Revista Científica</title>
+    
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="icon" type="image/png" href="favicon.png">
+    
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@300;400;600&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;600&display=swap');
+        
         body { font-family: 'Inter', sans-serif; }
-        h1, h2, h3 { font-family: 'Playfair Display', serif; }
-        .hero-pattern {
-            background-color: #2d1b14;
-            background-image: url("https://www.transparenttextures.com/patterns/carbon-fibre.png");
-        }
+        h1, h2, h3, h4 { font-family: 'Playfair Display', serif; }
+        
+        /* Ajuste suave no scroll */
+        html { scroll-behavior: smooth; }
     </style>
 </head>
-<body class="bg-stone-50 text-stone-900">
+<body class="bg-stone-50 text-stone-800 flex flex-col min-h-screen">
 
-    <nav class="bg-white/90 backdrop-blur-md sticky top-0 z-50 border-b border-stone-200">
+    <nav class="bg-white shadow-sm border-b border-stone-200 sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-20 items-center">
-                <div class="text-3xl font-bold text-orange-800 tracking-tighter">AFROLETRANDO</div>
-                <div class="hidden md:flex space-x-8 font-medium text-stone-600">
-                    <a href="index.php#sobre" class="hover:text-orange-700 transition">Sobre</a>
-                    <a href="index.php#edicoes" class="hover:text-orange-700 transition">Edições</a>
-                    <a href="index.php#submissao" class="hover:text-orange-700 transition">Submissões</a>
-                    <a href="index.php#contato" class="hover:text-orange-700 transition">Contato</a>
+                
+                <div class="flex items-center">
+                    <a href="index.php" class="text-2xl font-bold text-stone-900 tracking-wider font-serif">
+                        AFRO<span class="text-orange-700">LETRANDO</span>
+                    </a>
                 </div>
-                <a href="#" class="bg-orange-700 text-white px-6 py-2 rounded-full hover:bg-orange-800 transition shadow-lg">Acessar Portal OJS</a>
+
+                <div class="hidden md:flex space-x-8 items-center">
+                    <a href="index.php" class="text-stone-500 hover:text-orange-700 font-medium transition">Início</a>
+                    <a href="index.php#edicoes" class="text-stone-500 hover:text-orange-700 font-medium transition">Acervo</a>
+                    <a href="sobre.php" class="text-stone-500 hover:text-orange-700 font-medium transition">Sobre</a>
+                    
+                    <a href="login.php" class="group flex items-center px-5 py-2 bg-stone-900 text-white rounded-full text-sm font-bold hover:bg-orange-700 transition">
+                        <i class="fas fa-user-circle mr-2 group-hover:text-white"></i> ÁREA DO EDITOR
+                    </a>
+                </div>
+
+                <div class="md:hidden flex items-center">
+                    <button id="mobile-menu-btn" class="text-stone-900 text-2xl focus:outline-none p-2 rounded hover:bg-stone-100">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div id="mobile-menu" class="hidden md:hidden bg-white border-t border-stone-200 shadow-lg absolute w-full left-0 z-50">
+            <div class="px-4 pt-2 pb-6 space-y-2">
+                <a href="index.php" class="block px-3 py-3 rounded-md text-base font-medium text-stone-700 hover:text-orange-700 hover:bg-stone-50 transition">
+                    <i class="fas fa-home w-6 text-center"></i> Início
+                </a>
+                <a href="index.php#edicoes" class="block px-3 py-3 rounded-md text-base font-medium text-stone-700 hover:text-orange-700 hover:bg-stone-50 transition">
+                    <i class="fas fa-book w-6 text-center"></i> Acervo Digital
+                </a>
+                <a href="sobre.php" class="block px-3 py-3 rounded-md text-base font-medium text-stone-700 hover:text-orange-700 hover:bg-stone-50 transition">
+                    <i class="fas fa-info-circle w-6 text-center"></i> Sobre a Revista
+                </a>
+                <div class="border-t border-stone-100 my-2 pt-2">
+                    <a href="login.php" class="block px-3 py-3 rounded-md text-base font-bold text-orange-800 hover:bg-orange-50 transition">
+                        <i class="fas fa-user-shield w-6 text-center"></i> Área do Editor
+                    </a>
+                </div>
             </div>
         </div>
     </nav>
+    
+    <script>
+        const btn = document.getElementById('mobile-menu-btn');
+        const menu = document.getElementById('mobile-menu');
 
-    <header class="hero-pattern text-white py-24 px-4 relative overflow-hidden">
-        <div class="max-w-5xl mx-auto text-center relative z-10">
-            <span class="text-orange-400 font-semibold tracking-widest uppercase text-sm">Ciência, Letramento e Identidade</span>
-            <h1 class="text-5xl md:text-7xl mt-4 mb-6 leading-tight">Revista Científica Afroletrando</h1>
-            <p class="text-xl text-stone-300 max-w-2xl mx-auto font-light leading-relaxed">
-                Espaço de difusão de saberes voltados às africanidades, linguística aplicada e diálogos interculturais.
-            </p>
-            <div class="mt-10 flex flex-col md:flex-row justify-center gap-4">
-                <button class="bg-orange-600 hover:bg-orange-700 px-8 py-4 rounded-lg font-bold text-lg transition">Ver Edição Atual</button>
-                <button class="border border-stone-500 hover:bg-stone-800 px-8 py-4 rounded-lg font-bold text-lg transition">Chamada para Artigos</button>
-            </div>
-        </div>
-        <div class="absolute -bottom-10 -right-10 w-64 h-64 bg-orange-900/30 rounded-full blur-3xl"></div>
-    </header>
+        btn.addEventListener('click', () => {
+            menu.classList.toggle('hidden');
+        });
+    </script>
+    
+    <main class="flex-grow">
