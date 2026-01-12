@@ -12,15 +12,12 @@ $porta   = 3306;
 // Desativa mensagens de erro do MySQLi
 mysqli_report(MYSQLI_REPORT_OFF);
 
-// Tenta conectar
-$conn = @new mysqli($host, $usuario, $senha, $banco, $porta);
+$conn = new mysqli($host, $user, $pass, $db, $port);
 
-// VERIFICA SE DEU ERRO ANTES DE FAZER QUALQUER COISA
 if ($conn->connect_error) {
-    // Mostra uma mensagem amigável e para tudo
-    die("Erro de conexão: Não foi possível conectar ao banco. <br>Detalhe técnico: " . $conn->connect_error);
+    // ISSO VAI MOSTRAR O ERRO NA TELA (Só para debug)
+    die("FALHA NA CONEXÃO: " . $conn->connect_error . " | Host: " . $host . " | User: " . $user);
 }
-
 // Só define o charset se a conexão tiver dado certo
 $conn->set_charset("utf8");
 ?>
