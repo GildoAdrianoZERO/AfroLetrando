@@ -2,8 +2,7 @@
 session_start();
 require_once 'conexao.php';
 
-// 1. SEGURANÇA: Verifica se o usuário está logado
-// Se não tiver a sessão do usuário, expulsa para o login
+// 1. Verifica se o usuário está logado
 if (!isset($_SESSION['usuario_id'])) {
     header("Location: login.php");
     exit;
@@ -57,6 +56,22 @@ $result = $conn->query($sql);
             </a>
         </div>
 
+        <?php if (isset($_GET['msg'])): ?>
+            <?php if ($_GET['msg'] == 'sucesso'): ?>
+                <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-6 rounded shadow-sm">
+                    <i class="fas fa-check-circle mr-2"></i> Edição publicada com sucesso!
+                </div>
+            <?php elseif ($_GET['msg'] == 'editado'): ?>
+                <div class="bg-blue-100 border-l-4 border-blue-500 text-blue-700 p-4 mb-6 rounded shadow-sm">
+                    <i class="fas fa-pen-nib mr-2"></i> Edição atualizada com sucesso!
+                </div>
+            <?php elseif ($_GET['msg'] == 'excluido'): ?>
+                <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6 rounded shadow-sm">
+                    <i class="fas fa-trash mr-2"></i> A edição foi removida do sistema.
+                </div>
+            <?php endif; ?>
+        <?php endif; ?>
+
         <div class="bg-white rounded-xl shadow border border-stone-200 overflow-hidden">
             <div class="overflow-x-auto">
                 <table class="min-w-full divide-y divide-stone-200">
@@ -88,6 +103,11 @@ $result = $conn->query($sql);
                                     <a href="<?php echo $row['link_pdf']; ?>" target="_blank" class="text-blue-600 hover:text-blue-900 mr-4" title="Ver PDF">
                                         <i class="fas fa-eye"></i>
                                     </a>
+                                    
+                                    <a href="editar_edicao.php?id=<?php echo $row['id']; ?>" class="text-orange-600 hover:text-orange-900 mr-4" title="Editar">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+
                                     <a href="excluir_edicao.php?id=<?php echo $row['id']; ?>" 
                                        onclick="return confirm('Tem certeza que deseja apagar a edição <?php echo $row['volume']; ?>?')"
                                        class="text-red-600 hover:text-red-900" title="Excluir">
