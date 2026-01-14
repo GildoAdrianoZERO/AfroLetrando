@@ -1,5 +1,5 @@
 <?php
-// --- CORREÇÃO 1: VOLTAR PARA O PADRÃO COMPOSER (RAILWAY) ---
+// --- CONFIGURAÇÃO PARA RAILWAY (COMPOSER) ---
 require 'vendor/autoload.php';
 
 use PHPMailer\PHPMailer\PHPMailer;
@@ -20,15 +20,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if ($result->num_rows > 0) {
         $usuario = $result->fetch_assoc();
         
-        // 2. Gera um Token Único e Data de Validade (1 hora)
+        // 2. Gera Token e Validade
         $token = bin2hex(random_bytes(50));
         $validade = date('Y-m-d H:i:s', strtotime('+1 hour'));
 
-        // 3. Salva no Banco
         $conn->query("UPDATE usuarios SET token_recuperacao = '$token', token_validade = '$validade' WHERE email = '$email'");
 
-        // --- CORREÇÃO 2: LINK AUTOMÁTICO (Funciona no Railway e Local) ---
-        // Pega o domínio atual (ex: afroletrando.up.railway.app)
+        // 3. Link Dinâmico (Detecta HTTPS e Domínio do Railway sozinho)
         $protocolo = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') ? "https" : "http";
         $host = $_SERVER['HTTP_HOST'];
         $link = $protocolo . "://" . $host . "/redefinir_senha.php?token=" . $token;
@@ -36,18 +34,25 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $mail = new PHPMailer(true);
 
         try {
-            // --- CONFIGURAÇÃO DO EMAIL ---
-            // $mail->SMTPDebug = 2; // Descomente apenas se der erro
+            // --- MODO DEBUG (IMPORTANTE) ---
+            // Se der erro, vai mostrar na tela o motivo exato
+            $mail->SMTPDebug = 2; 
+            $mail->Debugoutput = 'html';
+
+            // --- CONFIGURAÇÃO BLINDADA PARA NUVEM ---
             $mail->isSMTP();
             $mail->Host       = 'smtp.gmail.com';
             $mail->SMTPAuth   = true;
             $mail->Username   = 'suporteafroletrando@gmail.com';
-            $mail->Password   = 'jjej qbuq xcks rqqk'; // Sua senha de App
-            $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-            $mail->Port       = 587;
-
-            // --- CORREÇÃO 3: REMOVIDO O BYPASS DE SSL DO XAMPP ---
-            // Em produção (Railway), o certificado do Google é aceito nativamente.
+            $mail->Password   = 'jjej qbuq xcks rqqk'; // Sua senha de app
+            
+            // MUDANÇA CRÍTICA: USAR SSL NA PORTA 465
+            // Isso resolve o problema de "ficar rodando para sempre"
+            $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS; 
+            $mail->Port       = 465;
+            
+            // Timeout: Se não conectar em 10 segundos, avisa o erro (não trava o site)
+            $mail->Timeout    = 10; 
 
             // Remetente e Destinatário
             $mail->setFrom('suporteafroletrando@gmail.com', 'Afroletrando Suporte');
@@ -59,29 +64,25 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $mail->Body    = "
                 <div style='font-family: Arial, sans-serif; color: #333;'>
                     <h2>Olá, {$usuario['nome']}!</h2>
-                    <p>Recebemos um pedido para redefinir sua senha.</p>
-                    <p>Clique no botão abaixo para criar uma nova senha:</p>
+                    <p>Clique abaixo para criar uma nova senha:</p>
                     <p>
                         <a href='$link' style='background-color: #c2410c; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;'>
-                            REDEFINIR MINHA SENHA
+                            REDEFINIR SENHA
                         </a>
                     </p>
-                    <p style='font-size: 12px; color: #777;'>Se o botão não funcionar, copie este link:<br>$link</p>
-                    <p style='font-size: 12px; color: #999;'>Este link expira em 1 hora.</p>
                 </div>
             ";
 
             $mail->send();
-            $msg = "Enviamos um link de recuperação para seu e-mail!";
+            $msg = "Link enviado com sucesso! Verifique seu e-mail.";
             $tipo_msg = "sucesso";
 
         } catch (Exception $e) {
-            $msg = "Erro ao enviar e-mail. Tente novamente mais tarde."; // Esconde erro técnico do usuário
-            // $msg = "Erro: {$mail->ErrorInfo}"; // Use este se precisar debugar
+            // Se der erro, o SMTPDebug vai mostrar os detalhes técnicos na tela
+            $msg = "Erro ao conectar no Gmail. Veja o log acima."; 
             $tipo_msg = "erro";
         }
     } else {
-        // Por segurança, mostramos a mesma mensagem
         $msg = "Se este e-mail estiver cadastrado, você receberá um link.";
         $tipo_msg = "sucesso";
     }
@@ -97,7 +98,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
-<body class="bg-stone-100 h-screen flex items-center justify-center px-4">
+<body class="bg-stone-100 h-screen flex flex-col items-center justify-center px-4">
 
     <div class="max-w-md w-full bg-white rounded-xl shadow-lg border border-stone-200 overflow-hidden">
         <div class="bg-stone-900 p-6 text-center">
