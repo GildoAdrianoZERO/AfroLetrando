@@ -107,6 +107,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     ENTRAR NO SISTEMA
                 </button>
             </form>
+            <div class="text-right mb-4">
+                <a href="esqueceu_senha.php" class="text-xs text-stone-500 hover:text-orange-600">Esqueceu a senha?</a>
+            </div>
             
             <div class="mt-6 text-center border-t border-stone-100 pt-6">
                 <p class="text-stone-500 text-sm mb-2">Não tem acesso?</p>
