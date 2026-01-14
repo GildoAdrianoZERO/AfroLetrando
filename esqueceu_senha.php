@@ -1,6 +1,8 @@
 <?php
 // Carrega o PHPMailer (instalado via Composer no Railway)
-require 'vendor/autoload.php';
+require 'libs/PHPMailer/Exception.php';
+require 'libs/PHPMailer/PHPMailer.php';
+require 'libs/PHPMailer/SMTP.php';
 
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
@@ -28,7 +30,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $conn->query("UPDATE usuarios SET token_recuperacao = '$token', token_validade = '$validade' WHERE email = '$email'");
 
         // 4. Configura o envio do E-mail
-        $link = "https://" . $_SERVER['HTTP_HOST'] . "/redefinir_senha.php?token=" . $token;
+        $link = "https://afroletrando-production.up.railway.app/redefinir_senha.php?token=" . $token;
 
         $mail = new PHPMailer(true);
 
@@ -40,7 +42,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $mail->Username   = 'suporteafroletrando@gmail.com'; // SEU EMAIL
             $mail->Password   = 'jjej qbuq xcks rqqk';    // SUA SENHA DE APP (Google)
             $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-            $mail->Port       = 465;
+            $mail->Port       = 587;
 
             // Remetente e Destinatário
             $mail->setFrom('suporteafroletrando@gmail.com', 'Suporte Afroletrando');
