@@ -1,8 +1,6 @@
 <?php
-// Carrega o PHPMailer (instalado via Composer no Railway)
-require 'libs/PHPMailer/Exception.php';
-require 'libs/PHPMailer/PHPMailer.php';
-require 'libs/PHPMailer/SMTP.php';
+// --- CORREÇÃO 1: VOLTAR PARA O PADRÃO COMPOSER (RAILWAY) ---
+require 'vendor/autoload.php';
 
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
@@ -29,35 +27,48 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         // 3. Salva no Banco
         $conn->query("UPDATE usuarios SET token_recuperacao = '$token', token_validade = '$validade' WHERE email = '$email'");
 
-        // 4. Configura o envio do E-mail
-        $link = "https://afroletrando-production.up.railway.app/redefinir_senha.php?token=" . $token;
+        // --- CORREÇÃO 2: LINK AUTOMÁTICO (Funciona no Railway e Local) ---
+        // Pega o domínio atual (ex: afroletrando.up.railway.app)
+        $protocolo = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') ? "https" : "http";
+        $host = $_SERVER['HTTP_HOST'];
+        $link = $protocolo . "://" . $host . "/redefinir_senha.php?token=" . $token;
 
         $mail = new PHPMailer(true);
 
         try {
-            // --- CONFIGURAÇÃO DO EMAIL (PREENCHA AQUI OU USE VARIÁVEIS DE AMBIENTE) ---
+            // --- CONFIGURAÇÃO DO EMAIL ---
+            // $mail->SMTPDebug = 2; // Descomente apenas se der erro
             $mail->isSMTP();
-            $mail->Host       = 'smtp.gmail.com'; // Se for Gmail
+            $mail->Host       = 'smtp.gmail.com';
             $mail->SMTPAuth   = true;
-            $mail->Username   = 'suporteafroletrando@gmail.com'; // SEU EMAIL
-            $mail->Password   = 'jjej qbuq xcks rqqk';    // SUA SENHA DE APP (Google)
+            $mail->Username   = 'suporteafroletrando@gmail.com';
+            $mail->Password   = 'jjej qbuq xcks rqqk'; // Sua senha de App
             $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
             $mail->Port       = 587;
 
+            // --- CORREÇÃO 3: REMOVIDO O BYPASS DE SSL DO XAMPP ---
+            // Em produção (Railway), o certificado do Google é aceito nativamente.
+
             // Remetente e Destinatário
-            $mail->setFrom('suporteafroletrando@gmail.com', 'Suporte Afroletrando');
+            $mail->setFrom('suporteafroletrando@gmail.com', 'Afroletrando Suporte');
             $mail->addAddress($email, $usuario['nome']);
 
             // Conteúdo
             $mail->isHTML(true);
             $mail->Subject = 'Recuperar Senha - Afroletrando';
             $mail->Body    = "
-                <h2>Olá, {$usuario['nome']}!</h2>
-                <p>Recebemos um pedido para redefinir sua senha.</p>
-                <p>Clique no link abaixo para criar uma nova senha:</p>
-                <p><a href='$link' style='background:#c2410c; color:white; padding:10px 20px; text-decoration:none; border-radius:5px;'>REDEFINIR SENHA</a></p>
-                <p>Ou copie o link: $link</p>
-                <p>Este link expira em 1 hora.</p>
+                <div style='font-family: Arial, sans-serif; color: #333;'>
+                    <h2>Olá, {$usuario['nome']}!</h2>
+                    <p>Recebemos um pedido para redefinir sua senha.</p>
+                    <p>Clique no botão abaixo para criar uma nova senha:</p>
+                    <p>
+                        <a href='$link' style='background-color: #c2410c; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;'>
+                            REDEFINIR MINHA SENHA
+                        </a>
+                    </p>
+                    <p style='font-size: 12px; color: #777;'>Se o botão não funcionar, copie este link:<br>$link</p>
+                    <p style='font-size: 12px; color: #999;'>Este link expira em 1 hora.</p>
+                </div>
             ";
 
             $mail->send();
@@ -65,11 +76,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $tipo_msg = "sucesso";
 
         } catch (Exception $e) {
-            $msg = "Erro ao enviar e-mail: {$mail->ErrorInfo}";
+            $msg = "Erro ao enviar e-mail. Tente novamente mais tarde."; // Esconde erro técnico do usuário
+            // $msg = "Erro: {$mail->ErrorInfo}"; // Use este se precisar debugar
             $tipo_msg = "erro";
         }
     } else {
-        // Por segurança, mostramos a mesma mensagem mesmo se o e-mail não existir
+        // Por segurança, mostramos a mesma mensagem
         $msg = "Se este e-mail estiver cadastrado, você receberá um link.";
         $tipo_msg = "sucesso";
     }
