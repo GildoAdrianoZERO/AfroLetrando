@@ -1,5 +1,4 @@
 <?php
-// --- CONFIGURAÇÃO PARA RAILWAY (COMPOSER) ---
 require 'vendor/autoload.php';
 
 use PHPMailer\PHPMailer\PHPMailer;
@@ -13,20 +12,20 @@ $tipo_msg = '';
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $email = $conn->real_escape_string($_POST['email']);
 
-    // 1. Verifica se o e-mail existe
+    // 1. Verifica se o e-mail existe no banco
     $sql = "SELECT id, nome FROM usuarios WHERE email = '$email'";
     $result = $conn->query($sql);
 
     if ($result->num_rows > 0) {
         $usuario = $result->fetch_assoc();
         
-        // 2. Gera Token e Validade
+        // 2. Gera Token
         $token = bin2hex(random_bytes(50));
         $validade = date('Y-m-d H:i:s', strtotime('+1 hour'));
 
         $conn->query("UPDATE usuarios SET token_recuperacao = '$token', token_validade = '$validade' WHERE email = '$email'");
 
-        // 3. Link Dinâmico (Detecta HTTPS e Domínio do Railway sozinho)
+        // 3. Link Dinâmico
         $protocolo = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') ? "https" : "http";
         $host = $_SERVER['HTTP_HOST'];
         $link = $protocolo . "://" . $host . "/redefinir_senha.php?token=" . $token;
@@ -34,28 +33,20 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $mail = new PHPMailer(true);
 
         try {
-            // --- MODO DEBUG (IMPORTANTE) ---
-            // Se der erro, vai mostrar na tela o motivo exato
-            $mail->SMTPDebug = 2; 
-            $mail->Debugoutput = 'html';
-
-            // --- CONFIGURAÇÃO BLINDADA PARA NUVEM ---
+            // --- CONFIGURAÇÃO RESEND (SMTP) ---
             $mail->isSMTP();
-            $mail->Host       = 'smtp.gmail.com';
+            $mail->Host       = 'smtp.resend.com';  // Servidor do Resend
             $mail->SMTPAuth   = true;
-            $mail->Username   = 'suporteafroletrando@gmail.com';
-            $mail->Password   = 'jjej qbuq xcks rqqk'; // Sua senha de app
-            
-            // MUDANÇA CRÍTICA: USAR SSL NA PORTA 465
-            // Isso resolve o problema de "ficar rodando para sempre"
-            $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS; 
-            $mail->Port       = 465;
-            
-            // Timeout: Se não conectar em 10 segundos, avisa o erro (não trava o site)
-            $mail->Timeout    = 10; 
+            $mail->Username   = 'resend';           // O usuário é sempre 'resend'
+            $mail->Password   = 're_DVaz1Noc_8vuucx87tHQPFkCPZ239CMGp';     // COLOQUE SUA API KEY AQUI (começa com re_)
+            $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+            $mail->Port       = 587;
 
-            // Remetente e Destinatário
-            $mail->setFrom('suporteafroletrando@gmail.com', 'Afroletrando Suporte');
+            // --- IMPORTANTE: REMETENTE DE TESTE ---
+            // Se você não tem domínio próprio, use este e-mail obrigatório do Resend:
+            $mail->setFrom('onboarding@resend.dev', 'Afroletrando Recuperacao');
+            
+            // Destinatário
             $mail->addAddress($email, $usuario['nome']);
 
             // Conteúdo
@@ -78,8 +69,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $tipo_msg = "sucesso";
 
         } catch (Exception $e) {
-            // Se der erro, o SMTPDebug vai mostrar os detalhes técnicos na tela
-            $msg = "Erro ao conectar no Gmail. Veja o log acima."; 
+            // Mostra o erro real se falhar
+            $msg = "Erro no envio: " . $mail->ErrorInfo;
             $tipo_msg = "erro";
         }
     } else {
@@ -96,7 +87,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Recuperar Senha | Afroletrando</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
 <body class="bg-stone-100 h-screen flex flex-col items-center justify-center px-4">
 
