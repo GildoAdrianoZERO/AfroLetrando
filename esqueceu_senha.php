@@ -40,7 +40,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $mail->Username   = 'suporteafroletrando@gmail.com'; // SEU EMAIL
             $mail->Password   = 'jjej qbuq xcks rqqk';    // SUA SENHA DE APP (Google)
             $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-            $mail->Port       = 587;
+            $mail->Port       = 465;
 
             // Remetente e Destinatário
             $mail->setFrom('suporteafroletrando@gmail.com', 'Suporte Afroletrando');
